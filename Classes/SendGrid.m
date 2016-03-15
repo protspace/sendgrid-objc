@@ -49,11 +49,11 @@ NSString * const sgEndpoint = @"api/mail.send.json";
 - (void)sendAttachmentWithWeb:(SendGridEmail *)email
 {
     [self sendAttachmentWithWeb:email
-         successBlock:^(id responseObject)
+                   successBlock:^(id responseObject)
      {
          NSLog(@"Success: %@", responseObject);
      }
-         failureBlock:^(NSError *error)
+                   failureBlock:^(NSError *error)
      {
          NSLog(@"Error: %@", error);
      }];
@@ -62,28 +62,29 @@ NSString * const sgEndpoint = @"api/mail.send.json";
 - (void)sendWithWeb:(SendGridEmail *)email successBlock:(void(^)(id responseObject))successBlock failureBlock:(void(^)(NSError *error))failureBlock
 {
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-
+    
     [manager POST:self.baseURL parameters:[email parametersDictionary:self.apiUser apiKey:self.apiKey] constructingBodyWithBlock:^(id<AFMultipartFormData> formData)
-    {
-        for (int i = 0; i < email.imgs.count; i++)
-        {
-            UIImage *img = [email.imgs objectAtIndex:i];
-            NSString *filename = [NSString stringWithFormat:@"image%d.png", i];
-            NSString *name = [NSString stringWithFormat:@"files[image%d.png]", i];
-            NSLog(@"name: %@, Filename: %@", name, filename);
-            NSData *imageData = UIImagePNGRepresentation(img);
-            [formData appendPartWithFileData:imageData name:name fileName:filename mimeType:@"image/png"];
-        }
-    }
+     {
+         for (int i = 0; i < email.imgs.count; i++)
+         {
+             UIImage *img = [email.imgs objectAtIndex:i];
+             NSString *filename = [NSString stringWithFormat:@"image%d.jpg", i];
+             NSString *name = [NSString stringWithFormat:@"files[image%d.jpg]", i];
+             NSLog(@"name: %@, Filename: %@", name, filename);
+             NSData *imageData = UIImageJPEGRepresentation(img, 1);
+             NSLog(@"IMAGE SIZE: %lu",(unsigned long)imageData.length);
+             [formData appendPartWithFileData:imageData name:name fileName:filename mimeType:@"image/jpg"];
+         }
+     }
           success:^(AFHTTPRequestOperation *operation, id responseObject)
-    {
-        successBlock(responseObject);
-    }
+     {
+         successBlock(responseObject);
+     }
           failure:^(AFHTTPRequestOperation *operation, NSError *error)
-    {
-        failureBlock(error);
-    }];
-
+     {
+         failureBlock(error);
+     }];
+    
 }
 
 - (void)sendAttachmentWithWeb:(SendGridEmail *)email successBlock:(void(^)(id responseObject))successBlock failureBlock:(void(^)(NSError *error))failureBlock
